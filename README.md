@@ -14,8 +14,8 @@ If you encounter issues, it's likely with my porting/integration work, and not w
 + High-resolution 540x720 display for super crisp lines at perfect 2x integer scaling.
 + Screen overlays!
 + Variable beam "persistence" setting.
-+ Selectable "overburn" setting to simulate the bright points that occur at the "Vertices" of lines drawn by the beam scanner.  Note that the rest of the line becomes dimmer when this is enabled
-+ Button remapping
++ Selectable "overburn" setting to simulate the bright points that occur at the "Vertices" of lines drawn by the beam scanner.  Note that the rest of the line becomes dimmer when this is enabled.
++ Button remapping.
 
 ## Known Issues
 
