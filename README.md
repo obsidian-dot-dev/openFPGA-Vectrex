@@ -1,28 +1,34 @@
 # Vectrex for Analogue Pocket
 
-Vectrex for Analogue Pocket by Obsidian-dot-dev
+Vectrex for Analogue Pocket by Obsidian-dot-dev.
 
-+ Port of the FPGA Vectrex implementation by [Dar](https://darfpga.blogspot.com/)
++ Based on Dar's FPGA Vectrex core [Dar](https://darfpga.blogspot.com/)
 + Based on the [Port to MiSTer by Sorgelig](https://github.com/MiSTer-devel/Vectrex_MiSTer)
 + Template code based on the Analogue Pocket port of Asteroids by [ericlewis](https://github.com/ericlewis/openfpga-asteroids)
 
-Note:  *This core is currently in BETA*.  
+Note:  *This core is currently in BETA*.
 If you encounter issues, it's likely with my porting/integration work, and not with the original core itself.  Please file tickets on the github tracker, and I will look at them.
 
 ## Supported
 
 + High-resolution 540x720 display for super crisp lines at perfect 2x integer scaling.
 + Screen overlays!
-+ Variable beam "persistence" setting.
++ Variable beam "persistence" setting.  Lower values are less flickery, but more blurry.  Higher values are sharper but more flickery.
 + Selectable "overburn" setting to simulate the bright points that occur at the "Vertices" of lines drawn by the beam scanner.  Note that the rest of the line becomes dimmer when this is enabled.
 + Button remapping.
++ Analog controls on gamepads when docked.
 
 ## Known Issues
 
 + Color mode and external peripherals are not currently supported.
-+ Games requiring analog controls don't play well with the dpad.
++ Some games require analog controls; these are only playable in dock with a compatible joystick.
 
 ## Release Notes
+
+PENDING:
++ Add support for analog joysticks in dock.
++ Fixed SDRAM refresh when overlays are disabled.
++ Overlays are no longer mandatory.
 
 0.9.0:
 + Initial release

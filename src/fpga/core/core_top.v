@@ -1,3 +1,4 @@
+
 //
 // User core top-level
 //
@@ -463,14 +464,16 @@ mf_pllbase mp1 (
 
 reg [3:0] cs_persistence = 0;
 reg cs_overburn = 0;
-reg cs_show_bg = 1;
+reg cs_show_bg = 0;
+reg cs_analog = 0;
 
 always @(posedge clk_74a) begin
   if(bridge_wr) begin
     casex(bridge_addr)
       32'h80000000: cs_persistence   <= bridge_wr_data[3:0];
       32'h90000000: cs_overburn <= bridge_wr_data[0];      
-		32'hA0000000: cs_show_bg<= bridge_wr_data[0];      
+		32'hA0000000: cs_show_bg <= bridge_wr_data[0];      
+		32'hB0000000: cs_analog <= bridge_wr_data[0];      
     endcase
   end
 end
@@ -609,6 +612,8 @@ data_loader #(
 
 wire [31:0] cont1_key_s;
 wire [31:0] cont2_key_s;
+wire [31:0] cont1_joy_s;
+wire [31:0] cont2_joy_s;
 
 synch_2 #(
   .WIDTH(32)
@@ -626,6 +631,22 @@ synch_2 #(
   clk_24
 );
 
+synch_2 #(
+  .WIDTH(32)
+) cont1j_s (
+  cont1_joy,
+  cont1_joy_s,
+  clk_24
+);
+
+synch_2 #(
+  .WIDTH(32)
+) cont2j_s (
+  cont2_joy,
+  cont2_joy_s,
+  clk_24
+);
+
 wire frame_line;
 wire [9:0] width;
 wire [9:0] height;
@@ -634,6 +655,20 @@ wire [9:0] vcnt;
 
 assign width = 10'd540;
 assign height = 10'd720;
+
+// Support analog joysticks in dock.
+reg [7:0] m_joy1_px;
+reg [7:0] m_joy1_py;
+reg [7:0] m_joy2_px;
+reg [7:0] m_joy2_py;
+
+always @(posedge clk_24) begin	
+	m_joy1_px <= (cont1_joy_s[7:0] + 8'b10000000);
+	m_joy1_py <= (cont1_joy_s[15:8] + 8'b10000000) ^ 8'b11111111;
+	
+	m_joy2_px <= (cont2_joy_s[7:0] + 8'b10000000);
+	m_joy2_py <= (cont2_joy_s[15:8] + 8'b10000000) ^ 8'b11111111;
+end
 
 wire m_joy1_a;
 wire m_joy1_b; 
@@ -646,8 +681,12 @@ assign m_joy1_a = cont1_key_s[4];
 assign m_joy1_b = cont1_key_s[5];
 assign m_joy1_x = cont1_key_s[6];
 assign m_joy1_y = cont1_key_s[7];
-assign m_joy1_potx = {cont1_key_s[2], {7{cont1_key_s[3]}}};
-assign m_joy1_poty = {cont1_key_s[1], {7{cont1_key_s[0]}}};
+
+// Joystick has analog x/y axis if at least one axis has a non-zero value
+wire m_joy1_has_analog = (cont1_joy_s[15:0] != 0);
+
+assign m_joy1_potx = (cs_analog && m_joy1_has_analog) ? m_joy1_px : {cont1_key_s[2], {7{cont1_key_s[3]}}};
+assign m_joy1_poty = (cs_analog && m_joy1_has_analog) ? m_joy1_py : {cont1_key_s[1], {7{cont1_key_s[0]}}};
 
 wire m_joy2_a;
 wire m_joy2_b; 
@@ -660,14 +699,17 @@ assign m_joy2_a = cont2_key_s[4];
 assign m_joy2_b = cont2_key_s[5];
 assign m_joy2_x = cont2_key_s[6];
 assign m_joy2_y = cont2_key_s[7];
-assign m_joy2_potx = {cont2_key_s[2], {7{cont2_key_s[3]}}};
-assign m_joy2_poty = {cont2_key_s[1], {7{cont2_key_s[0]}}};
+
+wire m_joy2_has_analog = (cont2_joy_s[15:0] != 0);
+
+assign m_joy2_potx = (cs_analog && m_joy2_has_analog) ? m_joy2_px : {cont2_key_s[2], {7{cont2_key_s[3]}}};
+assign m_joy2_poty = (cs_analog && m_joy2_has_analog) ? m_joy2_py : {cont2_key_s[1], {7{cont2_key_s[0]}}};
 
 
 vectrex vectrex_dut (
 	.clock(clk_24), 	
 	.reset(~reset_n), 
-	.cpu(0), // 0 --> Use "cpu09", 1 --> use "mc6809is" sync/cycle-accurate
+	.cpu(0), // 0 --> Use "cpu09", 1 --> use "mc6809is" sync/cycle-accurate, but sound is terrible.
 	.cart_data(ioctl_dout), 		
 	.cart_addr(ioctl_addr[14:0]),	
 	.cart_mask(15'h7FFF),
@@ -738,7 +780,8 @@ always @(posedge clk_24) begin
 	// This block copies data *columnwise*, starting at the bottom left.
 	// Columns are copied bottom-to-top, left-to-right
 	// Pixels are read into a single 16-bit word, that is then written to SDRAM.
-	if(ioctl_wr) begin								// !! ONLY SEND DATA TO SDRAM WHEN IOCTL_WR HIGH !!
+	if(ioctl_wr && (ioctl_addr[24] == 1)) begin								// !! ONLY SEND DATA TO SDRAM WHEN IOCTL_WR HIGH !!
+		img_used <= 1;									// Set register indicating that we're using the background
 		dl_wr <= 1;										// Set write flag
 		dl_addr <= {1'b0, ioctl_addr[23:1]};	// Set base DL address to word address of pixel
 		
@@ -768,7 +811,7 @@ always @(posedge clk_24) begin
 	end
 end
 
-
+reg  img_used = 0;
 wire img_download = ioctl_download && (ioctl_addr[24] == 1'b1);
 wire [31:0] sd_data;		// 32-bit data word containing data *read out* of SDRAM.
 
@@ -835,7 +878,7 @@ always @(posedge clk_48) begin	// At 48MHz (2x system freq)
 	
 	pic_req <= 0;								// Deassert pixel request by default.
 
-	if(~img_download && cs_show_bg) begin				// If we're using the bg and download is complete...
+	if(~img_download && img_used) begin	// If we're using the bg and download is complete...
 		if(ce_pix) begin						// Pixel enable is high
 			
 			cnt <= cnt >> 1;					// Shift counter down by 1 "Decrement" counter
@@ -843,8 +886,12 @@ always @(posedge clk_48) begin	// At 48MHz (2x system freq)
 			
 			old_vs <= vblank_core;													// stash vsync
 			if(~(hblank_core|vblank_core)) begin							// If in the active frame...
-			
-				{bg_a,bg_b,bg_g,bg_r} <= pic_data[~pic_addr[1]];		// Load the background pixels from the pic_data registers
+				if (cs_show_bg) begin
+					{bg_a,bg_b,bg_g,bg_r} <= pic_data[~pic_addr[1]];		// Load the background pixels from the pic_data registers
+				end
+				else begin
+					{bg_a,bg_b,bg_g,bg_r} <= 0;								// Disable output of background pixels if overlay disabled (but refresh sdram)
+				end
 				
 				pic_addr <= pic_addr + 2'd1;									// Increment the read address
 				if(pic_addr[1]) begin											// If lower bit of address is set...

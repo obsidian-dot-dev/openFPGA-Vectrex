@@ -4,17 +4,17 @@
     "data_slots": [
       {
         "name": "Game",
-        "id": 0,
+        "id": 1,
         "required": true,
-        "parameters": "0x109",
+        "parameters": "0",
         "extensions": ["vec"],
         "address": "0x00000000"
       },
       {
         "name": "Overlay",
-        "id": 1,
+        "id": 2,
         "required": true,
-        "parameters": "0x109",
+        "parameters": "0",
         "extensions": ["ovr"],
         "address": "0x01000000"
       }
