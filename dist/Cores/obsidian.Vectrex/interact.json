@@ -27,7 +27,7 @@
 				"persist": true,
                 "writeonly": true,
 				"address": "0x90000000",
-				"defaultval": 1,
+				"defaultval": 0,
 				"value": 1,
 				"mask": "0xFFFFFFFE"
 			},
@@ -42,19 +42,7 @@
 				"defaultval": 1,
 				"value": 1,
 				"mask": "0xFFFFFFFE"
-			},
-            {
-				"name": "Analog Stick",
-				"id": 4,
-				"type": "check",
-				"enabled": true,
-				"persist": true,
-                "writeonly": true,
-				"address": "0xB0000000",
-				"defaultval": 0,
-				"value": 1,
-				"mask": "0xFFFFFFFE"
-			}    
+			} 
         ],
         "messages": []
     }

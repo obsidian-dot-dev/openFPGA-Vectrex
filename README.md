@@ -6,13 +6,11 @@ Vectrex for Analogue Pocket by Obsidian-dot-dev.
 + Based on the [Port to MiSTer by Sorgelig](https://github.com/MiSTer-devel/Vectrex_MiSTer)
 + Template code based on the Analogue Pocket port of Asteroids by [ericlewis](https://github.com/ericlewis/openfpga-asteroids)
 
-Note:  *This core is currently in BETA*.
-If you encounter issues, it's likely with my porting/integration work, and not with the original core itself.  Please file tickets on the github tracker, and I will look at them.
-
 ## Supported
 
 + High-resolution 540x720 display for super crisp lines at perfect 2x integer scaling.
 + Screen overlays!
++ Auto-loading of overlays.
 + Variable beam "persistence" setting.  Lower values are less flickery, but more blurry.  Higher values are sharper but more flickery.
 + Selectable "overburn" setting to simulate the bright points that occur at the "Vertices" of lines drawn by the beam scanner.  Note that the rest of the line becomes dimmer when this is enabled.
 + Button remapping.
@@ -25,27 +23,43 @@ If you encounter issues, it's likely with my porting/integration work, and not w
 
 ## Release Notes
 
-PENDING:
-+ Add support for analog joysticks in dock.
+0.9.1:
++ Added .json instance files for auto-loading of games + overlays
++ Added support for analog joysticks when docked.
 + Fixed SDRAM refresh when overlays are disabled.
-+ Overlays are no longer mandatory.
 
 0.9.0:
 + Initial release
 
-## ROM Instructions
+## Auto-loading Overlays
 
-ROM files are not included.  ROMs in the standard `.vec` format are supported by the core.  These can be placed in the standard `Assets/vectrex/common` folder.
+This core now uses `.json` instance files to simultaneous load ROMs along with their corresponding overlays.  A set of `.json` files for the officially released games + prototypes is provided for reference.
 
-## Overlays
+Within the `<instance>.json` files:
++ The `.vec` entries correspond to the filenames of ROMs as they appear in the Vectrex "No-Intro" romset.
++ The `.ovr` entries correspond to the filenames of overlays as they appear in the MiSTeR "overlays.zip" archive.
 
-This core requires `.ovr` overlays in the same format as MiSTer.  Please copy the overlays assets from that package, and put them in `Assets/vectrex/common`.   These overlays aren't included in the release, but you can find a complete copy in the MiSTer repo listed above.
+Additional auto-load entries can be added by replacing the filenames of the `.vec` and `.ovr` entries. 
 
-Just like in Real Life, the core lets you choose different overlays from the game you wanted to play for fun.  When starting a game, the core will also prompt you to choose a new overlay as well.
+## Manually selecting Roms and Overlays
+
+A special `.json` instance file named `0 - Select ROM and Overlay.json` is provided, giving a user the ability to load a ROM and overlay file manually when the core is first started.  When selected, the file picker will prompt the user to select a ROM, followed by an overlay.  This effectively preserves the core's original behavior.
+
+Once the core is running, ROMs and Overlay files can be loaded independently via the "Load Game" and "Load Overlay" core options.
+
+## ROMs + Overlays
+
+ROM files are not included with this core.
+
+ROMs in the standard `.vec` format are supported.  These can be placed in the standard `assets/vectrex/common` folder.
+
+Where available, this core uses `.ovr` overlays in the same format as MiSTer.  Please copy the overlays assets from that package, and put them in `assets/vectrex/common/overlays`.   
+
+These overlays are not included in this repo, but you can find a complete copy of compatible assets in the `overlays.zip` archive located in [MiSTer's Vectrex repo's overlay directory](https://github.com/MiSTer-devel/Vectrex_MiSTer/tree/master/overlays)
 
 ## Compatibility
 
-All 22 of the original 28 games not requiring 3d imager or light-pen have been tested as working.  Homebrew/color roms have not been tested, but should behave as on MiSTer.
+All 22 of the original 28 games not requiring 3d imager or light-pen have been tested as working.  Many popular homebrew titles also run correctly on this core.  Overall performance and compatibility should match the MiSTeR version.
 
 ## Attribution
 

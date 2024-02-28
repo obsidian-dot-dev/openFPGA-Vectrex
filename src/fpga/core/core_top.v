@@ -465,7 +465,6 @@ mf_pllbase mp1 (
 reg [3:0] cs_persistence = 0;
 reg cs_overburn = 0;
 reg cs_show_bg = 0;
-reg cs_analog = 0;
 
 always @(posedge clk_74a) begin
   if(bridge_wr) begin
@@ -473,7 +472,6 @@ always @(posedge clk_74a) begin
       32'h80000000: cs_persistence   <= bridge_wr_data[3:0];
       32'h90000000: cs_overburn <= bridge_wr_data[0];      
 		32'hA0000000: cs_show_bg <= bridge_wr_data[0];      
-		32'hB0000000: cs_analog <= bridge_wr_data[0];      
     endcase
   end
 end
@@ -685,8 +683,8 @@ assign m_joy1_y = cont1_key_s[7];
 // Joystick has analog x/y axis if at least one axis has a non-zero value
 wire m_joy1_has_analog = (cont1_joy_s[15:0] != 0);
 
-assign m_joy1_potx = (cs_analog && m_joy1_has_analog) ? m_joy1_px : {cont1_key_s[2], {7{cont1_key_s[3]}}};
-assign m_joy1_poty = (cs_analog && m_joy1_has_analog) ? m_joy1_py : {cont1_key_s[1], {7{cont1_key_s[0]}}};
+assign m_joy1_potx = (m_joy1_has_analog) ? ((cont1_key_s[3:2] != 0) ? {cont1_key_s[2], {7{cont1_key_s[3]}}} : m_joy1_px) : {cont1_key_s[2], {7{cont1_key_s[3]}}};
+assign m_joy1_poty = (m_joy1_has_analog) ? ((cont1_key_s[1:0] != 0) ? {cont1_key_s[1], {7{cont1_key_s[0]}}} : m_joy1_py) : {cont1_key_s[1], {7{cont1_key_s[0]}}};
 
 wire m_joy2_a;
 wire m_joy2_b; 
@@ -702,8 +700,8 @@ assign m_joy2_y = cont2_key_s[7];
 
 wire m_joy2_has_analog = (cont2_joy_s[15:0] != 0);
 
-assign m_joy2_potx = (cs_analog && m_joy2_has_analog) ? m_joy2_px : {cont2_key_s[2], {7{cont2_key_s[3]}}};
-assign m_joy2_poty = (cs_analog && m_joy2_has_analog) ? m_joy2_py : {cont2_key_s[1], {7{cont2_key_s[0]}}};
+assign m_joy2_potx = (m_joy2_has_analog) ? ((cont2_key_s[3:2] != 0) ? {cont2_key_s[2], {7{cont2_key_s[3]}}} : m_joy2_px) : {cont2_key_s[2], {7{cont2_key_s[3]}}};
+assign m_joy2_poty = (m_joy2_has_analog) ? ((cont2_key_s[1:0] != 0) ? {cont2_key_s[1], {7{cont2_key_s[0]}}} : m_joy2_py) : {cont2_key_s[1], {7{cont2_key_s[0]}}};
 
 
 vectrex vectrex_dut (
