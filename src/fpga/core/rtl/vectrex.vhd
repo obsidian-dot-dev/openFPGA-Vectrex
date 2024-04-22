@@ -129,6 +129,10 @@ port
 	reset        : in  std_logic;
 	cpu          : in  std_logic;
 
+	bios_data    : in  std_logic_vector(7 downto 0);
+	bios_addr    : in  std_logic_vector(12 downto 0);
+	bios_wr      : in  std_logic;
+	
 	cart_data    : in  std_logic_vector(7 downto 0);
 	cart_addr    : in  std_logic_vector(14 downto 0);
 	cart_mask    : in  std_logic_vector(14 downto 0);
@@ -167,7 +171,15 @@ port
 	lf_2         : in  std_logic;
 	rt_2         : in  std_logic;
 	pot_x_2      : in  signed(7 downto 0);
-	pot_y_2      : in  signed(7 downto 0)
+	pot_y_2      : in  signed(7 downto 0);
+
+	-- sram bus parameters
+	sram_a : out std_logic_vector( 16 downto 0);
+	sram_dq : inout std_logic_vector( 15 downto 0); 
+	sram_oe_n : out std_logic;
+	sram_we_n : out std_logic;
+	sram_ub_n : out std_logic; 
+	sram_lb_n : out std_logic
 );
 end vectrex;
 
@@ -176,7 +188,7 @@ architecture syn of vectrex is
 --------------------------------------------------------------
 -- Configuration
 --------------------------------------------------------------
-constant vram_width    : integer := 5;
+constant vram_width    : integer := 6;
 constant max_h         : integer := 540; -- have to be multiple of 4
 constant max_v         : integer := 720;
 constant base_res      : integer := 5625;
@@ -340,6 +352,8 @@ signal pix_fx          : std_logic_vector(7 downto 0);
 signal pix_c           : std_logic_vector(7 downto 0);
 signal pix_cc          : std_logic_vector(7 downto 0);
 signal dac_ob          : std_logic_vector(7 downto 0);
+
+signal rom_mux_addr 	  : std_logic_vector(16 downto 0);
 
 component mc6809 is port
 (
@@ -606,15 +620,15 @@ port map( clk => not clock, we => video_we_2, addr => video_addr, d => writex_2,
 buf_3 : entity work.gen_ram generic map( dWidth => vram_width, aWidth => 18, nWords => max_h*max_v/4)
 port map( clk => not clock, we => video_we_3, addr => video_addr, d => writex_3, q => readx_3b);
 
-read_0b <= readx_0b & readx_0b(4 downto 2);
-read_1b <= readx_1b & readx_1b(4 downto 2);
-read_2b <= readx_2b & readx_2b(4 downto 2);
-read_3b <= readx_3b & readx_3b(4 downto 2);
+read_0b <= readx_0b & readx_0b(5 downto 4);
+read_1b <= readx_1b & readx_1b(5 downto 4);
+read_2b <= readx_2b & readx_2b(5 downto 4);
+read_3b <= readx_3b & readx_3b(5 downto 4);
 
-writex_0 <= write_0(7 downto 3);
-writex_1 <= write_1(7 downto 3);
-writex_2 <= write_2(7 downto 3);
-writex_3 <= write_3(7 downto 3);
+writex_0 <= write_0(7 downto 2);
+writex_1 <= write_1(7 downto 2);
+writex_2 <= write_2(7 downto 2);
+writex_3 <= write_3(7 downto 2);
 
 -------------------
 -- Video scanner --
@@ -660,26 +674,37 @@ video_vcnt <= vcnt;
 scan_video_addr <= vcnt * video_width + hcnt;
 
 --------------------------------------------------------------------
-
-main_rom : entity work.bios_rom
+main_rom : entity work.gen_dpram
+generic map(13, 8)
 port map
 (
-	clk  => clock,
-	addr => cpu_addr(12 downto 0),
-	data => rom_do
+	clock_a	 => clock,
+	address_a => bios_addr,
+	data_a	 => bios_data,
+	wren_a	 => bios_wr,
+
+	clock_b	 => clock,
+	wren_b	 => '0',
+	address_b => cpu_addr(12 downto 0),	
+	q_b		 => rom_do
 );
 
-cart_rom : entity work.gen_rom
+rom_mux_addr <= ("00" & cart_addr) when cart_wr = '1' else ("00" & cpu_addr(14 downto 0));
+car_rom : entity work.rom_storage
 port map
 (
-	data	    => cart_data,
-	wraddress => cart_addr,
-	wrclock	 => clock,
-	wren	    => cart_wr,
-
-	rdclock   => clock,
-	rdaddress => (cpu_addr(14 downto 0) and cart_mask),
-	q         => cart_do
+  clk =>   clock,
+  wr_en => cart_wr,
+  addr =>  rom_mux_addr,
+  din => cart_data,
+  dout => cart_do,
+  
+  sram_a => sram_a,
+  sram_dq => sram_dq,
+  sram_oe_n => sram_oe_n,
+  sram_we_n => sram_we_n,
+  sram_ub_n => sram_ub_n,
+  sram_lb_n => sram_lb_n
 );
 
 ram : entity work.gen_dpram

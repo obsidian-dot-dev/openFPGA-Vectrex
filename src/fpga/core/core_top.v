@@ -294,12 +294,12 @@ assign cram1_lb_n = 1;
 //assign dram_cas_n = 'h1;
 //assign dram_we_n = 'h1;
 
-assign sram_a = 'h0;
-assign sram_dq = {16{1'bZ}};
-assign sram_oe_n  = 1;
-assign sram_we_n  = 1;
-assign sram_ub_n  = 1;
-assign sram_lb_n  = 1;
+//assign sram_a = 'h0;
+//assign sram_dq = {16{1'bZ}};
+//assign sram_oe_n  = 1;
+//assign sram_we_n  = 1;
+//assign sram_ub_n  = 1;
+//assign sram_lb_n  = 1;
 
 assign dbg_tx = 1'bZ;
 assign user1 = 1'bZ;
@@ -465,13 +465,15 @@ mf_pllbase mp1 (
 reg [3:0] cs_persistence = 0;
 reg cs_overburn = 0;
 reg cs_show_bg = 0;
+reg cs_audio_lpf = 1;
 
 always @(posedge clk_74a) begin
   if(bridge_wr) begin
     casex(bridge_addr)
       32'h80000000: cs_persistence   <= bridge_wr_data[3:0];
       32'h90000000: cs_overburn <= bridge_wr_data[0];      
-		32'hA0000000: cs_show_bg <= bridge_wr_data[0];      
+	  32'hA0000000: cs_show_bg <= bridge_wr_data[0];      
+      32'hB0000000: cs_audio_lpf <= bridge_wr_data[0];
     endcase
   end
 end
@@ -482,15 +484,45 @@ end
 
 wire [9:0] audio;
 
+reg signed [15:0] signed_audio;
+wire signed [15:0] lpf_audio;
+
+always @(clk_24) begin
+  signed_audio   <= $signed({2'b0,audio,audio[9:6]}) - 16'sd8196;    
+end
+
+// Apply 5kHz 2nd-order butterworth low-pass filter to approximate 
+// frequency response of a 3" midrange driver.  The enclosure also
+// impacts the frequency response, but we're not going to go that
+// far down the rabbit-hole.  
+wire signed [15:0] speech_lpf;
+iir_2nd_order #(
+    .COEFF_WIDTH(22),
+    .COEFF_SCALE(15),
+    .DATA_WIDTH(16),
+    .COUNT_BITS(12)
+)  speech_lpf_iir (
+	.clk(clk_24), // 24MHz
+	.reset(~reset_n),
+	.div(12'd512), // 24MHz / 512 ~= 48kHz.
+	.A2(-22'sd50214),
+	.A3(22'sd20403),
+	.B1(22'sd739),
+	.B2(22'sd1479),
+	.B3(22'sd739),
+  .in(signed_audio),
+	.out(lpf_audio)
+);
+
 sound_i2s #(
-    .CHANNEL_WIDTH(10),
-    .SIGNED_INPUT (0)
+    .CHANNEL_WIDTH(16),
+    .SIGNED_INPUT (1)
 ) sound_i2s (
     .clk_74a(clk_74a),
     .clk_audio(clk_24),
     
-    .audio_l(audio),
-    .audio_r(audio),
+    .audio_l(cs_audio_lpf ? lpf_audio : signed_audio),
+    .audio_r(cs_audio_lpf ? lpf_audio : signed_audio),
 
     .audio_mclk(audio_mclk),
     .audio_lrck(audio_lrck),
@@ -708,10 +740,15 @@ vectrex vectrex_dut (
 	.clock(clk_24), 	
 	.reset(~reset_n), 
 	.cpu(0), // 0 --> Use "cpu09", 1 --> use "mc6809is" sync/cycle-accurate, but sound is terrible.
+	
+	.bios_data(ioctl_dout),
+	.bios_addr(ioctl_addr[12:0]),
+	.bios_wr(ioctl_wr && (ioctl_addr[24] == 1'b0) && (ioctl_addr[16] == 1'b1)), // BIOS loaded from address 0x10000
+
 	.cart_data(ioctl_dout), 		
 	.cart_addr(ioctl_addr[14:0]),	
 	.cart_mask(15'h7FFF),
-	.cart_wr(ioctl_wr && (ioctl_addr[24] == 1'b0)),   
+	.cart_wr(ioctl_wr && (ioctl_addr[24] == 1'b0) && (ioctl_addr[16] == 1'b0)), // CART loaded from address 0
 
 	.video_r(r), 
 	.video_g(g), 
@@ -746,7 +783,14 @@ vectrex vectrex_dut (
 	.lf_2(m_joy2_y), 
 	.rt_2(m_joy2_a), 
 	.pot_x_2(m_joy2_potx),
-	.pot_y_2(m_joy2_poty) 
+	.pot_y_2(m_joy2_poty),
+	
+   .sram_a(sram_a),
+   .sram_dq(sram_dq),
+   .sram_oe_n(sram_oe_n),
+   .sram_we_n(sram_we_n),
+   .sram_ub_n(sram_ub_n),
+	.sram_lb_n(sram_lb_n)
 );
 
 

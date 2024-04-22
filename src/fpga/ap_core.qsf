@@ -741,6 +741,9 @@ set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 set_global_assignment -name QII_AUTO_PACKED_REGISTERS NORMAL
 set_global_assignment -name ROUTER_TIMING_OPTIMIZATION_LEVEL MAXIMUM
 set_global_assignment -name STATE_MACHINE_PROCESSING "ONE-HOT"
+set_global_assignment -name VHDL_FILE core/rtl/rom_storage.vhd
+set_global_assignment -name VHDL_FILE core/rtl/gen_rom.vhd
+set_global_assignment -name VERILOG_FILE core/iir_1st_order.v
 set_global_assignment -name SYSTEMVERILOG_FILE core/rtl/sdram.sv
 set_global_assignment -name SYSTEMVERILOG_FILE core/rtl/ym2149.sv
 set_global_assignment -name VHDL_FILE core/rtl/vectrex.vhd
@@ -749,12 +752,10 @@ set_global_assignment -name VHDL_FILE core/rtl/sp0256.vhd
 set_global_assignment -name VERILOG_FILE core/rtl/mc6809is.v
 set_global_assignment -name VERILOG_FILE core/rtl/mc6809.v
 set_global_assignment -name VHDL_FILE core/rtl/m6522a.vhd
-set_global_assignment -name VHDL_FILE core/rtl/gen_rom.vhd
 set_global_assignment -name VHDL_FILE core/rtl/gen_ram.vhd
 set_global_assignment -name VHDL_FILE core/rtl/gen_dpram.vhd
 set_global_assignment -name VHDL_FILE core/rtl/cpu09l_128a.vhd
 set_global_assignment -name SYSTEMVERILOG_FILE core/rtl/compressor.sv
-set_global_assignment -name VHDL_FILE core/rtl/bios_rom.vhd
 set_global_assignment -name SYSTEMVERILOG_FILE core/rtl/alphablend.sv
 set_global_assignment -name SYSTEMVERILOG_FILE core/data_loader.sv
 set_global_assignment -name SYSTEMVERILOG_FILE core/sync_fifo.sv
@@ -768,5 +769,5 @@ set_global_assignment -name SIGNALTAP_FILE core/stp1.stp
 set_global_assignment -name QIP_FILE core/mf_pllbase.qip
 set_global_assignment -name SIP_FILE core/mf_pllbase.sip
 set_global_assignment -name SOURCE_FILE db/ap_core.cmp.rdb
-set_global_assignment -name SLD_FILE db/stp1_auto_stripped.stp
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
+set_global_assignment -name SLD_FILE db/stp1_auto_stripped.stp
