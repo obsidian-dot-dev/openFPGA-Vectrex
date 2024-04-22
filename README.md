@@ -15,6 +15,7 @@ Vectrex for Analogue Pocket by Obsidian-dot-dev.
 + Selectable "overburn" setting to simulate the bright points that occur at the "Vertices" of lines drawn by the beam scanner.  Note that the rest of the line becomes dimmer when this is enabled.
 + Button remapping.
 + Analog controls on gamepads when docked.
++ Audio low-pass filter to approximate the frequency response of the 3" speaker in the original console
 
 ## Known Issues
 
@@ -22,6 +23,17 @@ Vectrex for Analogue Pocket by Obsidian-dot-dev.
 + Some games require analog controls; these are only playable in dock with a compatible joystick.
 
 ## Release Notes
+
+0.9.3
++ Added audio low-pass filter at 5kHz to approximate the response of the 3" speaker in the original console.
++ Moved cart loading to SRAM.
++ Removed built-in BIOS, BIOS is now loaded from "vectrex.bin".
++ Moved the existing 2021 No-Intro .json's to the "2021 Romset" folder.
++ Added 2024 No-Intro .json's to the "2024 Romset" folder.
++ Increased vector dynamic range to 6 bits from 5 bits for slightly improved image quality.
+
+0.9.2:
++ When manually loading games, overlays are no longer required to start the core.  Overlays can still be selected from the UI.
 
 0.9.1:
 + Added .json instance files for auto-loading of games + overlays
