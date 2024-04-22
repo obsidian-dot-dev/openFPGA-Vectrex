@@ -9,6 +9,15 @@
         "parameters" : "0x1D3"
       },
       {
+        "name": "BIOS",
+        "id": 3,
+        "required": true,
+        "parameters": "0x2",
+        "filename": "vectrex.bin",
+        "size_exact": 8192,
+        "address": "0x00010000"
+      },
+      {
         "name": "Game",
         "id": 1,
         "required": true,
