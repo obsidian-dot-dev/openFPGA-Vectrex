@@ -24,13 +24,17 @@ Vectrex for Analogue Pocket by Obsidian-dot-dev.
 
 ## Release Notes
 
-0.9.3
+0.9.3:
 + Added audio low-pass filter at 5kHz to approximate the response of the 3" speaker in the original console.
 + Moved cart loading to SRAM.
-+ Removed built-in BIOS, BIOS is now loaded from "vectrex.bin".
++ Removed built-in BIOS, BIOS must now be in Assets/vectrex/common, and named "vectrex.bin".
 + Moved the existing 2021 No-Intro .json's to the "2021 Romset" folder.
 + Added 2024 No-Intro .json's to the "2024 Romset" folder.
 + Increased vector dynamic range to 6 bits from 5 bits for slightly improved image quality.
++ Companding for improved dynamic-range.
++ Optional "Phosphor decay" mode that gives a less "smeary" persistence effect.
++ Persistence control now has 32 levels, with better granularity.
++ Roms can be loaded directly without requiring an overlay now.
 
 0.9.2:
 + When manually loading games, overlays are no longer required to start the core.  Overlays can still be selected from the UI.
