@@ -14,7 +14,7 @@
                 "graphical": {
                   "signed": false,
                   "min": 1,
-                  "max": 15,
+                  "max": 31,
                   "adjust_small": 1,
                   "adjust_large": 1
                 }
@@ -31,9 +31,21 @@
 				"value": 1,
 				"mask": "0xFFFFFFFE"
 			},
+			{
+				"name": "Phosphor Decay",
+				"id": 4,
+				"type": "check",
+				"enabled": true,
+				"persist": true,
+                "writeonly": true,
+				"address": "0xC0000000",
+				"defaultval": 1,
+				"value": 1,
+				"mask": "0xFFFFFFFE"
+			},			
             {
 				"name": "Show Overlay",
-				"id": 3,
+				"id": 4,
 				"type": "check",
 				"enabled": true,
 				"persist": true,
@@ -45,7 +57,7 @@
 			},
             {
 				"name": "Audio Filter",
-				"id": 4,
+				"id": 5,
 				"type": "check",
 				"enabled": true,
 				"persist": true,
@@ -54,7 +66,7 @@
 				"defaultval": 1,
 				"value": 1,
 				"mask": "0xFFFFFFFE"
-			}            
+			}
         ],
         "messages": []
     }

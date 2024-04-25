@@ -741,6 +741,8 @@ set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 set_global_assignment -name QII_AUTO_PACKED_REGISTERS NORMAL
 set_global_assignment -name ROUTER_TIMING_OPTIMIZATION_LEVEL MAXIMUM
 set_global_assignment -name STATE_MACHINE_PROCESSING "ONE-HOT"
+set_global_assignment -name VHDL_FILE core/rtl/expander_lut.vhd
+set_global_assignment -name VHDL_FILE core/rtl/compressor_lut.vhd
 set_global_assignment -name VHDL_FILE core/rtl/rom_storage.vhd
 set_global_assignment -name VHDL_FILE core/rtl/gen_rom.vhd
 set_global_assignment -name VERILOG_FILE core/iir_1st_order.v

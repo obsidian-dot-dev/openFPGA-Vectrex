@@ -146,6 +146,7 @@ port
 	pers         : in  std_logic_vector(4 downto 0);
 	color        : in  std_logic_vector(1 downto 0);
 	overburn     : in  std_logic;
+	custom_pers	 : in  std_logic;
 
 	v_orient     : in  std_logic;
 	v_width      : in  std_logic_vector(9 downto 0);
@@ -313,6 +314,15 @@ signal write_1         : std_logic_vector(7 downto 0);
 signal write_2         : std_logic_vector(7 downto 0);
 signal write_3         : std_logic_vector(7 downto 0);
 
+signal phos_0          : std_logic_vector(7 downto 0);
+signal phos_1          : std_logic_vector(7 downto 0);
+signal phos_2          : std_logic_vector(7 downto 0);
+signal phos_3          : std_logic_vector(7 downto 0);
+
+signal pers_0          : std_logic_vector(7 downto 0);
+signal pers_1          : std_logic_vector(7 downto 0);
+signal pers_2          : std_logic_vector(7 downto 0);
+signal pers_3          : std_logic_vector(7 downto 0);
 
 signal hcnt            : std_logic_vector(9 downto 0);
 signal vcnt            : std_logic_vector(9 downto 0);
@@ -554,10 +564,10 @@ begin
 			when "10" =>
 				video_addr <= scan_video_addr(19 downto 2);
 				if hblank = '0' and vblank = '0' then
-					if read_0 > X"00" then video_we_0 <= '1'; if((read_0 and mask) > subt) then write_0 <= read_0 - subt; else write_0 <= (others => '0'); end if; end if;
-					if read_1 > X"00" then video_we_1 <= '1'; if((read_1 and mask) > subt) then write_1 <= read_1 - subt; else write_1 <= (others => '0'); end if; end if;
-					if read_2 > X"00" then video_we_2 <= '1'; if((read_2 and mask) > subt) then write_2 <= read_2 - subt; else write_2 <= (others => '0'); end if; end if;
-					if read_3 > X"00" then video_we_3 <= '1'; if((read_3 and mask) > subt) then write_3 <= read_3 - subt; else write_3 <= (others => '0'); end if; end if;
+					if read_0 > X"00" then video_we_0 <= '1'; if((read_0 and mask) > pers_0) then write_0 <= read_0 - pers_0; else write_0 <= (others => '0'); end if; end if;
+					if read_1 > X"00" then video_we_1 <= '1'; if((read_1 and mask) > pers_1) then write_1 <= read_1 - pers_1; else write_1 <= (others => '0'); end if; end if;
+					if read_2 > X"00" then video_we_2 <= '1'; if((read_2 and mask) > pers_2) then write_2 <= read_2 - pers_2; else write_2 <= (others => '0'); end if; end if;
+					if read_3 > X"00" then video_we_3 <= '1'; if((read_3 and mask) > pers_3) then write_3 <= read_3 - pers_3; else write_3 <= (others => '0'); end if; end if;
 				end if;
 
 			when others =>
@@ -594,7 +604,7 @@ end process;
 
 pix_fx<= dac_z(6 downto 0)&dac_z(6) when overburn = '0' else X"FF" when (to_integer(unsigned(dac_z))+to_integer(unsigned(dac_ob)))>255 else dac_z+dac_ob;
 
-subt  <= pers&"000" when color = "00" else "000"&pers;
+subt  <= "0"&pers&"00" when color = "00" else "000"&pers;
 mask  <= "11111111" when color = "00" else "00011111";
 pix   <= pix_fx     when color = "00" else (via_pa_o(7) or via_pa_o(6) or via_pa_o(5) or via_pa_o(4))&(via_pa_o(3) or via_pa_o(2))&(via_pa_o(1) or via_pa_o(0))&pix_fx(7 downto 3);
 
@@ -620,15 +630,83 @@ port map( clk => not clock, we => video_we_2, addr => video_addr, d => writex_2,
 buf_3 : entity work.gen_ram generic map( dWidth => vram_width, aWidth => 18, nWords => max_h*max_v/4)
 port map( clk => not clock, we => video_we_3, addr => video_addr, d => writex_3, q => readx_3b);
 
-read_0b <= readx_0b & readx_0b(5 downto 4);
-read_1b <= readx_1b & readx_1b(5 downto 4);
-read_2b <= readx_2b & readx_2b(5 downto 4);
-read_3b <= readx_3b & readx_3b(5 downto 4);
+-- 8-to-6 compressor/expander using exponent-based/gamma-function LUT 
+comp_0 : entity work.compressor_lut
+port map (
+  data => write_0,
+  data_comp => writex_0
+);
 
-writex_0 <= write_0(7 downto 2);
-writex_1 <= write_1(7 downto 2);
-writex_2 <= write_2(7 downto 2);
-writex_3 <= write_3(7 downto 2);
+comp_1 : entity work.compressor_lut
+port map (
+  data => write_1,
+  data_comp => writex_1
+);
+
+comp_2 : entity work.compressor_lut
+port map (
+  data => write_2,
+  data_comp => writex_2
+);
+
+comp_3 : entity work.compressor_lut
+port map (
+  data => write_3,
+  data_comp => writex_3
+);
+
+exp_0 : entity work.expander_lut
+port map (
+  data => readx_0b,
+  data_exp => read_0b
+);
+
+exp_1 : entity work.expander_lut
+port map (
+  data => readx_1b,
+  data_exp => read_1b
+);
+
+exp_2 : entity work.expander_lut
+port map (
+  data => readx_2b,
+  data_exp => read_2b
+);
+
+exp_3 : entity work.expander_lut
+port map (
+  data => readx_3b,
+  data_exp => read_3b
+);
+
+-- Slightly better phosphor decay approximation, providing less "smudgy" 
+-- visuals compared to the purly linear approximation used in the original.
+-- Note that the "subt" parameter now provides a touch of linear decay.
+phos_0 <= x"20" when read_0 < 48 else 
+	X"30" when read_0 > 207 else
+	x"40" when read_0 > 127 else
+	"0" & read_0(7 downto 1);
+
+phos_1 <= x"20" when read_1 < 48 else 
+	X"30" when read_1 > 207 else
+	X"40" when read_1 > 127 else
+	"0" & read_1(7 downto 1);
+
+phos_2 <= x"20" when read_2 < 48 else 
+	X"30" when read_2 > 207 else
+	X"40" when read_2 > 127 else
+	"0" & read_2(7 downto 1);
+	
+phos_3 <= x"10" when read_3 < 48 else 
+	X"20" when read_3 > 207 else
+	X"30" when read_3 > 127 else
+	"0" & read_3(7 downto 1);
+
+-- Add linear offset to fine-tune persistence
+pers_0 <= subt when custom_pers = '0' else subt when phos_0 < subt else phos_0 + subt;
+pers_1 <= subt when custom_pers = '0' else subt when phos_1 < subt else phos_1 + subt;
+pers_2 <= subt when custom_pers = '0' else subt when phos_2 < subt else phos_2 + subt;
+pers_3 <= subt when custom_pers = '0' else subt when phos_3 < subt else phos_3 + subt;
 
 -------------------
 -- Video scanner --

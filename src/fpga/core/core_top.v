@@ -462,18 +462,20 @@ mf_pllbase mp1 (
 // Core Settings
 ///////////////////////////////////////////////
 
-reg [3:0] cs_persistence = 0;
+reg [4:0] cs_persistence = 0;
 reg cs_overburn = 0;
 reg cs_show_bg = 0;
-reg cs_audio_lpf = 1;
+reg cs_audio_lpf = 0;
+reg cs_phosphor_decay = 0;
 
 always @(posedge clk_74a) begin
   if(bridge_wr) begin
     casex(bridge_addr)
-      32'h80000000: cs_persistence   <= bridge_wr_data[3:0];
+      32'h80000000: cs_persistence   <= bridge_wr_data[4:0];
       32'h90000000: cs_overburn <= bridge_wr_data[0];      
-	  32'hA0000000: cs_show_bg <= bridge_wr_data[0];      
+	    32'hA0000000: cs_show_bg <= bridge_wr_data[0];      
       32'hB0000000: cs_audio_lpf <= bridge_wr_data[0];
+      32'hC0000000: cs_phosphor_decay <= bridge_wr_data[0];
     endcase
   end
 end
@@ -755,9 +757,10 @@ vectrex vectrex_dut (
 	.video_b(b), 
 
 	.frame_line(frame_line),   
-	.pers({cs_persistence, 1'b0}),
+	.pers(cs_persistence),
 	.color(0),        				
 	.overburn(cs_overburn),     	
+  .custom_pers(cs_phosphor_decay),
 
 	.v_orient(0),		
 	.v_width(width),   
