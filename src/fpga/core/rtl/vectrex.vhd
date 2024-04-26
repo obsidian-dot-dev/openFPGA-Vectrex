@@ -682,25 +682,33 @@ port map (
 -- Slightly better phosphor decay approximation, providing less "smudgy" 
 -- visuals compared to the purly linear approximation used in the original.
 -- Note that the "subt" parameter now provides a touch of linear decay.
-phos_0 <= x"20" when read_0 < 48 else 
-	X"30" when read_0 > 207 else
-	x"40" when read_0 > 127 else
-	"0" & read_0(7 downto 1);
+phos_0 <=
+	x"20" + (127 - "0"&read_0(7 downto 1)) when read_0 > 224 else
+	x"30" + (112 - "00"&read_0(7 downto 2)) when read_0 > 192 else
+	x"38" when read_0 > 92 else
+	"00"&read_0(7 downto 2) when read_0 > subt else
+	x"00";
 
-phos_1 <= x"20" when read_1 < 48 else 
-	X"30" when read_1 > 207 else
-	X"40" when read_1 > 127 else
-	"0" & read_1(7 downto 1);
+phos_1 <=
+	x"20" + (127 - "0"&read_1(7 downto 1)) when read_1 > 224 else
+	x"30" + (112 - "00"&read_1(7 downto 2)) when read_1 > 192 else
+	x"38" when read_1 > 92 else
+	"00"&read_0(7 downto 2) when read_1 > subt else
+	x"00";
 
-phos_2 <= x"20" when read_2 < 48 else 
-	X"30" when read_2 > 207 else
-	X"40" when read_2 > 127 else
-	"0" & read_2(7 downto 1);
-	
-phos_3 <= x"10" when read_3 < 48 else 
-	X"20" when read_3 > 207 else
-	X"30" when read_3 > 127 else
-	"0" & read_3(7 downto 1);
+phos_2 <=
+	x"20" + (127 - "0"&read_2(7 downto 1)) when read_2 > 224 else
+	x"30" + (112 - "00"&read_2(7 downto 2)) when read_2 > 192 else
+	x"38" when read_2 > 92 else
+	"00"&read_2(7 downto 2) when read_2 > subt else
+	x"00";
+
+phos_3 <=
+	x"20" + (127 - "0"&read_3(7 downto 1)) when read_3 > 224 else
+	x"30" + (112 - "00"&read_3(7 downto 2)) when read_3 > 192 else
+	x"38" when read_3 > 92 else
+	"00"&read_3(7 downto 2) when read_3 > subt else
+	x"00";
 
 -- Add linear offset to fine-tune persistence
 pers_0 <= subt when custom_pers = '0' else subt when phos_0 < subt else phos_0 + subt;
