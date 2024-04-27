@@ -22,34 +22,27 @@ Vectrex for Analogue Pocket by Obsidian-dot-dev.
 + Color mode and external peripherals are not currently supported.
 + Some games require analog controls; these are only playable in dock with a compatible joystick.
 
-## Release Notes
+## Phosphor Decay
 
-0.9.3:
-+ Added audio low-pass filter at 5kHz to approximate the response of the 3" speaker in the original console.
-+ Moved cart loading to SRAM.
-+ Removed built-in BIOS, BIOS must now be in Assets/vectrex/common, and named "vectrex.bin".
-+ Moved the existing 2021 No-Intro .json's to the "2021 Romset" folder.
-+ Added 2024 No-Intro .json's to the "2024 Romset" folder.
-+ Increased vector dynamic range to 6 bits from 5 bits for slightly improved image quality.
-+ Companding for improved dynamic-range.
-+ Optional "Phosphor decay" mode that gives a less "smeary" persistence effect.
-+ Persistence control now has 32 levels, with better granularity.
-+ Roms can be loaded directly without requiring an overlay now.
+When enabled, the "Phosphor Decay" option modifies pixel persistence behavior, giving a more natural and less "smudgy" appearance to the image.  This decay model stacks on-top of the decay provided by the persistence slider.  Because the two effects stack, a lower persistence value is recommended when this option is enabled.
 
-0.9.2:
-+ When manually loading games, overlays are no longer required to start the core.  Overlays can still be selected from the UI.
+## Audio Filter
 
-0.9.1:
-+ Added .json instance files for auto-loading of games + overlays
-+ Added support for analog joysticks when docked.
-+ Fixed SDRAM refresh when overlays are disabled.
+To more accurately simulate the audio response of the original console, an optional 5kHz low-pass filter is provided.  This value was chosen to estimate the response of a 3" paper-cone driver like the one found in the Vectrex console.
 
-0.9.0:
-+ Initial release
+Note: In looking at the original schematic, it appears the only audio filtering is provided by a 22kHz LPF network, applied before the signal is amplified by an LM386.  The impacts of either of these would be negligible relative to the frequency response of the speaker.
+
+## BIOS
+
+This core now relies on a BIOS ROM named `vectrex.bin` to be present in `Assets/vectrex/common`.  The core will fail to run without this dependency.
 
 ## Auto-loading Overlays
 
-This core now uses `.json` instance files to simultaneous load ROMs along with their corresponding overlays.  A set of `.json` files for the officially released games + prototypes is provided for reference.
+This core now uses `.json` instance files to simultaneous load ROMs along with their corresponding overlays.  Sets of `.json` files for the officially released games + prototypes are provided for reference images.
+
+Two sets of auto-load files are provided:
++ `0 - 2024 Romset` contains json data for the newet 2024 NoIntro images.
++ `0 - 2021 Romset` contains json data for the previous 2021 NoIntro images.
 
 Within the `<instance>.json` files:
 + The `.vec` entries correspond to the filenames of ROMs as they appear in the Vectrex "No-Intro" romset.
@@ -76,6 +69,31 @@ These overlays are not included in this repo, but you can find a complete copy o
 ## Compatibility
 
 All 22 of the original 28 games not requiring 3d imager or light-pen have been tested as working.  Many popular homebrew titles also run correctly on this core.  Overall performance and compatibility should match the MiSTeR version.
+
+## Release Notes
+
+0.9.3:
++ Added audio low-pass filter.
++ Moved cart loading to SRAM.
++ Removed built-in BIOS.
++ Moved the existing 2021 No-Intro .json's to the "0 - 2021 Romset" folder.
++ Added 2024 No-Intro .json's to the "0 - 2024 Romset" folder.
++ Increased vector dynamic range to 6 bits from 5 bits for slightly improved image quality.
++ Companding for improved dynamic-range.
++ Optional "Phosphor decay" mode that gives a less "smeary" persistence effect.
++ Persistence control now has 32 levels, with better granularity.
++ Roms can be loaded directly without requiring an overlay now.
+
+0.9.2:
++ When manually loading games, overlays are no longer required to start the core.  Overlays can still be selected from the UI.
+
+0.9.1:
++ Added .json instance files for auto-loading of games + overlays
++ Added support for analog joysticks when docked.
++ Fixed SDRAM refresh when overlays are disabled.
+
+0.9.0:
++ Initial release
 
 ## Attribution
 
