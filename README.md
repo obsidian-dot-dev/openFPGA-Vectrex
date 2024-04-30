@@ -36,27 +36,7 @@ Note: In looking at the original schematic, it appears the only audio filtering 
 
 This core now relies on a BIOS ROM named `vectrex.bin` to be present in `Assets/vectrex/common`.  The core will fail to run without this dependency.
 
-## Auto-loading Overlays
-
-This core now uses `.json` instance files to simultaneous load ROMs along with their corresponding overlays.  Sets of `.json` files for the officially released games + prototypes are provided for reference images.
-
-Two sets of auto-load files are provided:
-+ `0 - 2024 Romset` contains json data for the newet 2024 NoIntro images.
-+ `0 - 2021 Romset` contains json data for the previous 2021 NoIntro images.
-
-Within the `<instance>.json` files:
-+ The `.vec` entries correspond to the filenames of ROMs as they appear in the Vectrex "No-Intro" romset.
-+ The `.ovr` entries correspond to the filenames of overlays as they appear in the MiSTeR "overlays.zip" archive.
-
-Additional auto-load entries can be added by replacing the filenames of the `.vec` and `.ovr` entries. 
-
-## Manually selecting Roms and Overlays
-
-A special `.json` instance file named `0 - Select ROM and Overlay.json` is provided, giving a user the ability to load a ROM and overlay file manually when the core is first started.  When selected, the file picker will prompt the user to select a ROM, followed by an overlay.  This effectively preserves the core's original behavior.
-
-Once the core is running, ROMs and Overlay files can be loaded independently via the "Load Game" and "Load Overlay" core options.
-
-## ROMs + Overlays
+## ROMs and Overlays
 
 ROM files are not included with this core.
 
@@ -65,6 +45,24 @@ ROMs in the standard `.vec` format are supported.  These can be placed in the st
 Where available, this core uses `.ovr` overlays in the same format as MiSTer.  Please copy the overlays assets from that package, and put them in `assets/vectrex/common/overlays`.   
 
 These overlays are not included in this repo, but you can find a complete copy of compatible assets in the `overlays.zip` archive located in [MiSTer's Vectrex repo's overlay directory](https://github.com/MiSTer-devel/Vectrex_MiSTer/tree/master/overlays)
+
+The use of overlay files is not required - users may manually select only a `.vec` file if desired.  Overlays can be swapped in-game by selecting the "Load Overlay" option in the interact menu.
+
+## Auto-loading ROMs and Overlays via .json files
+
+This core now uses `.json` instance files to simultaneous load ROMs along with their corresponding overlays.  Sets of `.json` files for the officially released games + prototypes are provided for reference images.
+
+Two sets of auto-load json files are provided:
++ `0 - 2024 Romset` contains json data for the newet 2024 NoIntro images.
++ `0 - 2021 Romset` contains json data for the previous 2021 NoIntro images.
+
+For the supported json data, it is expected that corresponding game data is stored under `Assets/vectrex/common/0 - 2021 Romset` or `Assets/vectrex/common/0 - 2024 Romset`, and the overlays are stored under `assets/vectrex/common/overlays`.
+
+Within the `<instance>.json` files:
++ The `.vec` entries correspond to the filenames of ROMs as they appear in the Vectrex "No-Intro" romset.
++ The `.ovr` entries correspond to the filenames of overlays as they appear in the MiSTeR "overlays.zip" archive.
+
+Additional auto-load entries can be added by replacing the filenames of the `.vec` and `.ovr` entries. 
 
 ## Compatibility
 
