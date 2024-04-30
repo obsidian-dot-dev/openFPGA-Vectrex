@@ -12,7 +12,7 @@
         "name": "BIOS",
         "id": 3,
         "required": true,
-        "parameters": "0x2",
+        "parameters": "0",
         "filename": "vectrex.bin",
         "size_exact": 8192,
         "address": "0x00010000"

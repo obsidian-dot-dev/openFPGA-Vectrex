@@ -7,7 +7,7 @@
             "description": "GCE Vectrex",
             "author": "obsidian",
             "url": "https://github.com/obsidian-dot-dev/openFPGA-Vectrex",
-            "version": "0.9.3",
+            "version": "0.9.4",
             "date_release": "2024-04-28"
         },
         "framework": {

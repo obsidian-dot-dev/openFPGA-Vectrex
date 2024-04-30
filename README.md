@@ -70,6 +70,9 @@ All 22 of the original 28 games not requiring 3d imager or light-pen have been t
 
 ## Release Notes
 
+0.9.4:
++ Fix BIOS path.
+
 0.9.3:
 + Added audio low-pass filter.
 + Moved cart loading to SRAM.
